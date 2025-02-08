@@ -7,6 +7,7 @@ import ch.cern.todo.repository.CategoryRepository;
 import ch.cern.todo.repository.TaskRepository;
 import ch.cern.todo.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -17,25 +18,31 @@ public class DataInitializer {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final CategoryRepository categoryRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(UserRepository userRepository, TaskRepository taskRepository,
-                           CategoryRepository categoryRepository) {
+                           CategoryRepository categoryRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.categoryRepository = categoryRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostConstruct
     public void init() {
+        userRepository.deleteAll();
+        categoryRepository.deleteAll();
+        taskRepository.deleteAll();
+
         if (userRepository.count() == 0) {
             User admin = User.builder()
                     .username("admin")
-                    .password("admin123")
+                    .password(passwordEncoder.encode("admin123"))
                     .role("ROLE_ADMIN")
                     .build();
             User user = User.builder()
                     .username("user")
-                    .password("user123")
+                    .password(passwordEncoder.encode("test123"))
                     .role("ROLE_USER")
                     .build();
 
