@@ -7,10 +7,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
-@EqualsAndHashCode
-@Data
-@SuperBuilder
 public class CategoryRequest {
     private String name;
     private String description;

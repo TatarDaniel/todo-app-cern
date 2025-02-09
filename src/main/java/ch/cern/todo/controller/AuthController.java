@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final UserService userService;
 
-    public AuthController(UserService userService) {
+    public AuthController(final UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterRequest request) {
+    public ResponseEntity<String> registerUser(@RequestBody final RegisterRequest request) {
         try {
-            User user = userService.registerUser(request.getUsername(), request.getPassword(), "ROLE_USER");
+            final User user = userService.registerUser(request.getUsername(), request.getPassword(), "ROLE_USER");
             return ResponseEntity.ok("User " + user.getUsername() + " registered successfully!");
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
