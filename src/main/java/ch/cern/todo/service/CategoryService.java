@@ -2,6 +2,9 @@ package ch.cern.todo.service;
 
 import ch.cern.todo.config.SecurityUtil;
 import ch.cern.todo.dto.TaskCategoryRequestParam;
+import ch.cern.todo.exceptions.ResourceNotFoundException;
+import ch.cern.todo.exceptions.UnauthorizedException;
+import ch.cern.todo.exceptions.UserNotFoundException;
 import ch.cern.todo.mapper.ConvertorCategory;
 import ch.cern.todo.dto.CategoryRequest;
 import ch.cern.todo.dto.CategoryResponse;
@@ -9,12 +12,14 @@ import ch.cern.todo.entity.Category;
 import ch.cern.todo.entity.User;
 import ch.cern.todo.repository.CategoryRepository;
 import ch.cern.todo.repository.UserRepository;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +38,10 @@ public class CategoryService {
     }
 
     public Page<CategoryResponse> getAllCategories(final TaskCategoryRequestParam requestParams, final Pageable pageable) {
+        // TODO change the conditions
+        if (isNotAdmin() && !requestParams.getCreatedBy().equals(SecurityUtil.getLoggedInUsername())) {
+            throw new UnauthorizedException("You are not allowed to view this category!");
+        }
 
         final Specification<Category> spec = createSpecification(requestParams);
         final Page<Category> categories = categoryRepository.findAll(spec, pageable);
@@ -42,24 +51,23 @@ public class CategoryService {
         return new PageImpl<>(categoryResponses, pageable, categories.getTotalElements());
     }
 
-    public CategoryResponse createCategory(final CategoryRequest categoryRequest, final String userName) throws Exception {
-        final Optional<User> user = userRepository.findByUsername(userName);
+    public CategoryResponse createCategory(final CategoryRequest categoryRequest, final String userName) {
+        final Optional<User> userOptional = userRepository.findByUsername(userName);
 
-        if(user.isPresent()) {
-            final Category category = convertorCategory.convertToCategoryEntity(categoryRequest, user.get());
+        if(userOptional.isEmpty()) {
+            throw new UserNotFoundException(userName);
+        }
 
-            return convertorCategory.convertToCategoryResponse(categoryRepository.save(category));
-        }
-        else {
-            throw new Exception();
-        }
+        final Category category = convertorCategory.convertToCategoryEntity(categoryRequest, userOptional.get());
+
+        return convertorCategory.convertToCategoryResponse(categoryRepository.save(category));
     }
 
     public CategoryResponse updateCategory(final CategoryRequest categoryRequest, final String userName, final Long id) {
-        final Category category = findById(id).get();
+        final Category category = findById(id);
 
         if (isNotAdmin() && !category.getCreatedBy().getUsername().equals(userName)) {
-            throw new RuntimeException("Unauthorized to update this category!");
+            throw new UnauthorizedException("You are not allowed to update this category!");
         }
 
         category.setName(categoryRequest.getName());
@@ -71,12 +79,10 @@ public class CategoryService {
     }
 
     public void deleteCategory(final String userName, final Long id) {
-
-
-        final Category category = findById(id).get();
+        final Category category = findById(id);
 
         if (isNotAdmin() && !category.getCreatedBy().getUsername().equals(userName)) {
-            throw new RuntimeException("Unauthorized to update this category!");
+            throw new UnauthorizedException("You are not allowed to delete this category!");
         }
 
         categoryRepository.delete(category);
@@ -84,21 +90,21 @@ public class CategoryService {
 
     private Specification<Category> createSpecification(final TaskCategoryRequestParam params) {
         return (root, query, criteriaBuilder) -> {
-            Specification<Category> spec = Specification.where(null);
+            final List<Predicate> predicates = new ArrayList<>();
 
             if (Objects.nonNull(params.getCreatedBy())) {
-                spec = spec.and((root1, query1, cb) -> cb.equal(root.get("createdBy").get("username"), params.getCreatedBy()));
+                predicates.add(criteriaBuilder.equal(root.get("createdBy").get("username"), params.getCreatedBy()));
             }
 
             if (Objects.nonNull(params.getName())) {
-                spec = spec.and((root1, query1, cb) -> cb.like(cb.lower(root.get("name")), "%" + params.getName().toLowerCase() + "%"));
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + params.getName().toLowerCase() + "%"));
             }
 
             if (Objects.nonNull(params.getDescription())) {
-                spec = spec.and((root1, query1, cb) -> cb.like(cb.lower(root.get("description")), "%" + params.getDescription().toLowerCase() + "%"));
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), "%" + params.getDescription().toLowerCase() + "%"));
             }
 
-            return spec.toPredicate(root, query, criteriaBuilder);
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
 
@@ -107,15 +113,9 @@ public class CategoryService {
                 .noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
     }
 
-    private Optional<Category> findById(final Long id) {
-        final Optional<Category> optionalCategory = categoryRepository.findCategoryById(id);
-
-        if(optionalCategory.isEmpty()) {
-            throw new RuntimeException("Category not found");
-        }
-        else {
-            return optionalCategory;
-        }
+    private Category findById(final Long id) {
+        return categoryRepository.findCategoryById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(id.toString()));
     }
 
 }
