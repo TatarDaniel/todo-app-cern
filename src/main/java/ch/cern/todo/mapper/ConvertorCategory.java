@@ -15,13 +15,11 @@ public class ConvertorCategory {
 
     public Category convertToCategoryEntity(final CategoryRequest categoryRequest, final User user) {
 
-        Category category = Category.builder()
-                .name(categoryRequest.getName()).
-                description(categoryRequest.getDescription())
+        return Category.builder()
+                .name(categoryRequest.getName())
+                .description(categoryRequest.getDescription())
                 .createdBy(user)
                 .build();
-
-        return category;
     }
 
     public List<CategoryResponse> convertToCategories(final List<Category> categoryList) {
