@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TaskCategoryRequestParam {
+public class TaskCategoryRequestParams {
     private String createdBy;
     private String name;
     private String description;

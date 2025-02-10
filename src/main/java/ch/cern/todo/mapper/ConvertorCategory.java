@@ -31,6 +31,11 @@ public class ConvertorCategory {
     }
 
     public CategoryResponse convertToCategoryResponse(final Category category) {
-        return CategoryResponse.builder().id(category.getId()).name(category.getName()).description(category.getDescription()).createdBy(category.getCreatedBy().getUsername()).build();
+        return CategoryResponse.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .description(category.getDescription())
+                .createdBy(category.getCreatedBy().getUsername())
+                .build();
     }
 }

@@ -3,7 +3,7 @@ package ch.cern.todo.controller;
 import ch.cern.todo.config.SecurityUtil;
 import ch.cern.todo.dto.CategoryRequest;
 import ch.cern.todo.dto.CategoryResponse;
-import ch.cern.todo.dto.TaskCategoryRequestParam;
+import ch.cern.todo.dto.TaskCategoryRequestParams;
 import ch.cern.todo.service.CategoryService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +24,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getAllCategories(final TaskCategoryRequestParam requestParam,
+    public ResponseEntity<List<CategoryResponse>> getAllCategories(final TaskCategoryRequestParams requestParam,
                                                                    final Pageable pageable) {
         final Page<CategoryResponse> categoryResponses = categoryService.getAllCategories(requestParam, pageable);
 
@@ -32,23 +32,23 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody final CategoryRequest categoryRequest) throws Exception {
+    public ResponseEntity<CategoryResponse> createCategory(@RequestBody final CategoryRequest categoryRequest) {
         final CategoryResponse category = categoryService.createCategory(categoryRequest, SecurityUtil.getLoggedInUsername());
 
-        return ResponseEntity.status(HttpStatus.OK).body(category);
+        return ResponseEntity.status(HttpStatus.CREATED).body(category);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{categoryId}")
     public ResponseEntity<CategoryResponse> updateCategory(@Valid @RequestBody final CategoryRequest categoryRequest,
-                                                           @PathVariable @NotNull final Long id) {
-        final CategoryResponse category = categoryService.updateCategory(categoryRequest, SecurityUtil.getLoggedInUsername(), id);
+                                                           @PathVariable @NotNull final Long categoryId) {
+        final CategoryResponse category = categoryService.updateCategory(categoryRequest, SecurityUtil.getLoggedInUsername(), categoryId);
 
         return ResponseEntity.status(HttpStatus.OK).body(category);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable @NotNull final Long id) {
-        categoryService.deleteCategory(SecurityUtil.getLoggedInUsername(), id);
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<String> deleteCategory(@PathVariable @NotNull final Long categoryId) {
+        categoryService.deleteCategory(SecurityUtil.getLoggedInUsername(), categoryId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

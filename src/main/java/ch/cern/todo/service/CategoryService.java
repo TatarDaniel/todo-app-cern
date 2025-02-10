@@ -1,7 +1,7 @@
 package ch.cern.todo.service;
 
 import ch.cern.todo.config.SecurityUtil;
-import ch.cern.todo.dto.TaskCategoryRequestParam;
+import ch.cern.todo.dto.TaskCategoryRequestParams;
 import ch.cern.todo.exceptions.ResourceNotFoundException;
 import ch.cern.todo.exceptions.UnauthorizedException;
 import ch.cern.todo.exceptions.UserNotFoundException;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -37,7 +36,7 @@ public class CategoryService {
         this.userRepository = userRepository;
     }
 
-    public Page<CategoryResponse> getAllCategories(final TaskCategoryRequestParam requestParams, final Pageable pageable) {
+    public Page<CategoryResponse> getAllCategories(final TaskCategoryRequestParams requestParams, final Pageable pageable) {
         // TODO change the conditions
         if (isNotAdmin() && !requestParams.getCreatedBy().equals(SecurityUtil.getLoggedInUsername())) {
             throw new UnauthorizedException("You are not allowed to view this category!");
@@ -52,19 +51,15 @@ public class CategoryService {
     }
 
     public CategoryResponse createCategory(final CategoryRequest categoryRequest, final String userName) {
-        final Optional<User> userOptional = userRepository.findByUsername(userName);
+        final User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));
 
-        if(userOptional.isEmpty()) {
-            throw new UserNotFoundException(userName);
-        }
-
-        final Category category = convertorCategory.convertToCategoryEntity(categoryRequest, userOptional.get());
+        final Category category = convertorCategory.convertToCategoryEntity(categoryRequest, user);
 
         return convertorCategory.convertToCategoryResponse(categoryRepository.save(category));
     }
 
-    public CategoryResponse updateCategory(final CategoryRequest categoryRequest, final String userName, final Long id) {
-        final Category category = findById(id);
+    public CategoryResponse updateCategory(final CategoryRequest categoryRequest, final String userName, final Long categoryId) {
+        final Category category = findById(categoryId);
 
         if (isNotAdmin() && !category.getCreatedBy().getUsername().equals(userName)) {
             throw new UnauthorizedException("You are not allowed to update this category!");
@@ -78,8 +73,8 @@ public class CategoryService {
         return convertorCategory.convertToCategoryResponse(updatedCategory);
     }
 
-    public void deleteCategory(final String userName, final Long id) {
-        final Category category = findById(id);
+    public void deleteCategory(final String userName, final Long categoryId) {
+        final Category category = findById(categoryId);
 
         if (isNotAdmin() && !category.getCreatedBy().getUsername().equals(userName)) {
             throw new UnauthorizedException("You are not allowed to delete this category!");
@@ -88,7 +83,7 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-    private Specification<Category> createSpecification(final TaskCategoryRequestParam params) {
+    private Specification<Category> createSpecification(final TaskCategoryRequestParams params) {
         return (root, query, criteriaBuilder) -> {
             final List<Predicate> predicates = new ArrayList<>();
 

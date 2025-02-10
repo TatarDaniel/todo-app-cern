@@ -39,7 +39,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorDetails> handleUserNotFoundException(final ResourceNotFoundException exception,
+    public ResponseEntity<ErrorDetails> handleUserNotFoundException(final UserNotFoundException exception,
                                                                         final WebRequest webRequest){
         final ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
@@ -52,13 +52,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorDetails> handleUnauthorizedException(final ResourceNotFoundException exception,
+    public ResponseEntity<ErrorDetails> handleUnauthorizedException(final UnauthorizedException exception,
                                                                     final WebRequest webRequest){
         final ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 exception.getMessage(),
                 webRequest.getDescription(false),
                 "UNAUTHORIZED_ACTION"
+        );
+
+        return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(DuplicateResourceFoundException.class)
+    public ResponseEntity<ErrorDetails> handleDuplicateResourceException(final DuplicateResourceFoundException exception,
+                                                                    final WebRequest webRequest){
+        final ErrorDetails errorDetails = new ErrorDetails(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                webRequest.getDescription(false),
+                "DUPLICATE_RESOURCE_FOUND"
         );
 
         return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);

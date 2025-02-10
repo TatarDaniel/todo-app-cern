@@ -50,20 +50,15 @@ public class DataInitializer {
 
             final Category work = Category.builder().name("Work").description("Work related tasks").createdBy(admin).build();
             final Category personal = Category.builder().name("Personal").description("Personal tasks").createdBy(user).build();
-            final Category personal1 = Category.builder().name("Personal1").description("Personal tasks").createdBy(user).build();
-            final Category personal2 = Category.builder().name("Personal2").description("Personal tasks").createdBy(user).build();
-            final Category personal3 = Category.builder().name("Personal3").description("Personal tasks").createdBy(user).build();
-            final Category personal4 = Category.builder().name("Personal4").description("Personal tasks").createdBy(user).build();
-            final Category personal5 = Category.builder().name("Personal5").description("Personal tasks").createdBy(user).build();
-            categoryRepository.saveAll(List.of(work, personal, personal1, personal2, personal3, personal4, personal5));
+            final Category gym = Category.builder().name("Gym").description("Gym tasks").createdBy(user).build();
+            final Category financial = Category.builder().name("Financial").description("Financial tasks").createdBy(admin).build();
+            categoryRepository.saveAll(List.of(work, personal, gym, financial));
 
             final Task task1 = Task.builder().name("Complete report").description("Finish project report").deadline(LocalDateTime.now().plusDays(2)).category(work).createdBy(admin).build();
-            final Task task2 = Task.builder().name("Buy groceries").description("Milk, eggs, bread").deadline(LocalDateTime.now().plusDays(1)).category(personal).createdBy(user).build();
-            final Task task3 = Task.builder().name("Buy groceries").description("Milk, eggs, bread").deadline(LocalDateTime.now().plusDays(1)).category(personal).createdBy(user).build();
-            final Task task4 = Task.builder().name("Buy groceries").description("Milk, eggs, bread").deadline(LocalDateTime.now().plusDays(1)).category(personal).createdBy(user).build();
-            final Task task5 = Task.builder().name("Buy groceries").description("Milk, eggs, bread").deadline(LocalDateTime.now().plusDays(1)).category(personal).createdBy(user).build();
-            final Task task6 = Task.builder().name("Buy groceries").description("Milk, eggs, bread").deadline(LocalDateTime.now().plusDays(1)).category(personal).createdBy(user).build();
-            taskRepository.saveAll(List.of(task1, task2, task3, task4, task5, task6));
+            final Task task2 = Task.builder().name("Buy groceries").description("Milk, eggs, bread").deadline(LocalDateTime.now().plusDays(5)).category(personal).createdBy(user).build();
+            final Task task3 = Task.builder().name("Go to the gym").description("18 gym").deadline(LocalDateTime.now().plusDays(2)).category(gym).createdBy(user).build();
+            final Task task4 = Task.builder().name("Check the balance").description("analysis the report").deadline(LocalDateTime.now().plusDays(10)).category(financial).createdBy(admin).build();
+            taskRepository.saveAll(List.of(task1, task2, task3, task4));
         }
     }
 }
