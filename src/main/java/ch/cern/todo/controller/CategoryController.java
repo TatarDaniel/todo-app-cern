@@ -24,15 +24,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getAllCategories(final TaskCategoryRequestParams requestParam,
-                                                                   final Pageable pageable) {
-        final Page<CategoryResponse> categoryResponses = categoryService.getAllCategories(requestParam, pageable);
+    public ResponseEntity<List<CategoryResponse>> getAllCategories(final TaskCategoryRequestParams requestParam) {
+        final List<CategoryResponse> categoryResponses = categoryService.getAllCategories(requestParam);
 
-        return ResponseEntity.status(HttpStatus.OK).body(categoryResponses.getContent());
+        return ResponseEntity.status(HttpStatus.OK).body(categoryResponses);
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody final CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody final CategoryRequest categoryRequest) {
         final CategoryResponse category = categoryService.createCategory(categoryRequest, SecurityUtil.getLoggedInUsername());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(category);

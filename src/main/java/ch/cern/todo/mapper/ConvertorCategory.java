@@ -17,7 +17,7 @@ public class ConvertorCategory {
 
         return Category.builder()
                 .name(categoryRequest.getName())
-                .description(categoryRequest.getDescription())
+                .description(categoryRequest.getDescription().isEmpty() ? "" : categoryRequest.getDescription())
                 .createdBy(user)
                 .build();
     }

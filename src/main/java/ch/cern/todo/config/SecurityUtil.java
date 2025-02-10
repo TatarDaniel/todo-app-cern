@@ -15,4 +15,9 @@ public class SecurityUtil {
         final Authentication auth = getAuthentication();
         return (auth != null) ? auth.getName() : "anonymous";
     }
+
+    public static boolean isNotAdmin() {
+        return SecurityUtil.getAuthentication().getAuthorities().stream()
+                .noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+    }
 }

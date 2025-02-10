@@ -40,6 +40,13 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<Category> createdCategories;
 
+    public User(long l, String name, String test, String roleUser) {
+        this.id = l;
+        this.username = name;
+        this.password = test;
+        this.role = roleUser;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(() -> role);

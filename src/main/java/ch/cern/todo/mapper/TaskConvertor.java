@@ -15,7 +15,7 @@ public class TaskConvertor {
     public Task convertToTaskEntity(final TaskRequest taskRequest, final User user, final Category category) {
         return Task.builder()
                 .name(taskRequest.getName())
-                .description(taskRequest.getDescription())
+                .description(taskRequest.getDescription().isEmpty() ? "" : taskRequest.getDescription())
                 .deadline(taskRequest.getDeadline())
                 .createdBy(user)
                 .category(category)

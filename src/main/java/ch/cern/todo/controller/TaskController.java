@@ -2,12 +2,9 @@ package ch.cern.todo.controller;
 
 import ch.cern.todo.config.SecurityUtil;
 import ch.cern.todo.dto.*;
-import ch.cern.todo.entity.Task;
 import ch.cern.todo.service.TaskService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,13 +21,11 @@ public class TaskController {
     }
 
 
-    // Get task by conditions
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTask(final TaskRequestParams requestParam,
-                                                        final Pageable pageable) {
-        final Page<TaskResponse> taskResponses = taskService.getAllCategories(requestParam, pageable);
+    public ResponseEntity<List<TaskResponse>> getAllTask(final TaskRequestParams requestParam) {
+        final List<TaskResponse> taskResponses = taskService.getAllTasks(requestParam);
 
-        return ResponseEntity.status(HttpStatus.OK).body(taskResponses.getContent());
+        return ResponseEntity.status(HttpStatus.OK).body(taskResponses);
     }
 
     @PostMapping

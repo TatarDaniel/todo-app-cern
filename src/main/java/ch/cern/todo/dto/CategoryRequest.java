@@ -1,5 +1,6 @@
 package ch.cern.todo.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -8,6 +9,9 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 public class CategoryRequest {
+
+    @NotBlank(message = "Task category name is required")
     private String name;
+
     private String description;
 }

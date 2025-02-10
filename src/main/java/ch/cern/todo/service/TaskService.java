@@ -14,9 +14,6 @@ import ch.cern.todo.repository.CategoryRepository;
 import ch.cern.todo.repository.TaskRepository;
 import ch.cern.todo.repository.UserRepository;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -27,38 +24,34 @@ import java.util.Optional;
 
 @Service
 public class TaskService {
-
-
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final TaskConvertor taskConvertor;
-    private final CategoryService categoryService;
 
-    public TaskService(final TaskRepository taskRepository, final UserRepository userRepository, final CategoryRepository categoryRepository, final TaskConvertor taskConvertor, CategoryService categoryService) {
+    public TaskService(final TaskRepository taskRepository, final UserRepository userRepository, final CategoryRepository categoryRepository, final TaskConvertor taskConvertor) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.taskConvertor = taskConvertor;
-        this.categoryService = categoryService;
     }
 
-    public Page<TaskResponse> getAllCategories(final TaskRequestParams requestParams, final Pageable pageable) {
-        if (isNotAdmin() && !requestParams.getCreatedBy().equals(SecurityUtil.getLoggedInUsername())) {
-            throw new UnauthorizedException("You are not allowed to see task created by " + requestParams.getCreatedBy() + "!");
+    public List<TaskResponse> getAllTasks(final TaskRequestParams requestParams) {
+        if(requestParams.getCreatedBy() == null && SecurityUtil.isNotAdmin()) {
+            requestParams.setCreatedBy(SecurityUtil.getLoggedInUsername());
+        }
+        if (SecurityUtil.isNotAdmin() && !requestParams.getCreatedBy().equals(SecurityUtil.getLoggedInUsername())) {
+            throw new UnauthorizedException("You are not allowed to see tasks created by " + requestParams.getCreatedBy() + "!");
         }
 
-        final Specification<Task> spec = createSpecification(requestParams);
-        final Page<Task> tasks = taskRepository.findAll(spec, pageable);
+        final List<Task> tasks = taskRepository.findAll(createSpecification(requestParams));
 
-        final List<TaskResponse> taskResponses = tasks.stream().map(taskConvertor::convertToTaskResponse).toList();
-
-        return new PageImpl<>(taskResponses, pageable, tasks.getTotalElements());
+        return tasks.stream().map(taskConvertor::convertToTaskResponse).toList();
     }
 
     public TaskResponse createTask(final TaskRequest taskRequest, final String userName) {
         final User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));
-        final Category category = categoryRepository.findByName(taskRequest.getCategory()).orElseThrow(() -> new ResourceNotFoundException(taskRequest.getCategory()));
+        final Category category = categoryRepository.findByName(taskRequest.getCategory()).orElseThrow(() -> new ResourceNotFoundException("Category", taskRequest.getCategory()));
 
         final Optional<Task> optionalTask = taskRepository.findByNameAndCategoryAndCreatedBy(taskRequest.getName(), category, user);
 
@@ -74,12 +67,12 @@ public class TaskService {
     public TaskResponse updateTask(final TaskRequest taskRequest, final String userName, final Long id) {
         final Task task = findById(id);
 
-        if (isNotAdmin() && !task.getCreatedBy().getUsername().equals(userName)) {
+        if (SecurityUtil.isNotAdmin() && !task.getCreatedBy().getUsername().equals(userName)) {
             throw new UnauthorizedException("You are not allowed to update this task!");
         }
 
         final Category category = categoryRepository.findByName(taskRequest.getCategory())
-                .orElseThrow(() -> new ResourceNotFoundException(taskRequest.getCategory()));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", taskRequest.getCategory()));
 
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
@@ -94,14 +87,14 @@ public class TaskService {
     public void deleteTask(final String userName, final Long id) {
         final Task task = findById(id);
 
-        if (isNotAdmin() && !task.getCreatedBy().getUsername().equals(userName)) {
+        if (SecurityUtil.isNotAdmin() && !task.getCreatedBy().getUsername().equals(userName)) {
             throw new UnauthorizedException("You are not allowed to delete this category!");
         }
 
         taskRepository.delete(task);
     }
 
-    private Specification<Task> createSpecification(final TaskRequestParams params) {
+    protected Specification<Task> createSpecification(final TaskRequestParams params) {
         return (root, query, criteriaBuilder) -> {
             final List<Predicate> predicates = new ArrayList<>();
 
@@ -129,13 +122,8 @@ public class TaskService {
         };
     }
 
-    private boolean isNotAdmin() {
-        return SecurityUtil.getAuthentication().getAuthorities().stream()
-                .noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-    }
 
     private Task findById(final Long id) {
-        return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id.toString()));
+        return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", id.toString()));
     }
-
 }
