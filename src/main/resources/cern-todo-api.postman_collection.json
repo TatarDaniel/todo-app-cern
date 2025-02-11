@@ -1,0 +1,261 @@
+{
+	"info": {
+		"_postman_id": "0cfd221f-de24-40a5-8872-59879d22b326",
+		"name": "CERN TODOs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "4414241"
+	},
+	"item": [
+		{
+			"name": "categories",
+			"item": [
+				{
+					"name": "/categories",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"password": "apx",
+								"username": "Daniel"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/v1/categories"
+					},
+					"response": []
+				},
+				{
+					"name": "/categories",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"password": "apx",
+								"username": "Daniel"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"Test\",\r\n    \"description\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/v1/categories"
+					},
+					"response": []
+				},
+				{
+					"name": "/categories",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"password": "test123",
+								"username": "user"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"IT\",\r\n    \"description\" : \"java\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/v1/categories/6"
+					},
+					"response": []
+				},
+				{
+					"name": "/categories",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"password": "admin123",
+								"username": "admin"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"update category\",\r\n    \"description\" : \"testDescr\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/v1/categories/7"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\" : \"Daniel\",\r\n    \"password\" : \"apx\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/v1/auth/register"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "task",
+			"item": [
+				{
+					"name": "task",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"password": "apx",
+								"username": "Daniel"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Task for my personal life\",\r\n    \"description\": \"Walking every day\",\r\n    \"deadline\": \"2025-03-15\",\r\n    \"category\": \"Personal\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/v1/tasks"
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"password": "apx",
+								"username": "Daniel"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/tasks?category=Personal&deadline=2025-03-20&name=pers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "Personal"
+								},
+								{
+									"key": "deadline",
+									"value": "2025-03-20"
+								},
+								{
+									"key": "name",
+									"value": "pers"
+								},
+								{
+									"key": "createdBy",
+									"value": "user",
+									"disabled": true
+								},
+								{
+									"key": "description",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"password": "apx",
+								"username": "Daniel"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"name\": \"Gym\",\r\n        \"description\": \"gym\",\r\n        \"deadline\": \"2025-03-19\",\r\n        \"category\": \"Gym\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/v1/tasks/6"
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"password": "admin123",
+								"username": "admin"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/v1/tasks/6"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
